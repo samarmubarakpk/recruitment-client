@@ -1,3 +1,4 @@
+// src/App.tsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import './App.css';
@@ -8,17 +9,21 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import CandidateDashboard from './pages/candidate/CandidateDashboard';
 import CompanyDashboard from './pages/company/CompanyDashboard';
-// import AdminDashboard from './pages/admin/AdminDashboard';
 import Interview from './pages/candidate/Interview';
 import InterviewReport from './pages/company/InterviewReport';
-// import InterviewRecording from './pages/company/InterviewRecording';
 import CVAnalysis from './pages/company/CVAnalysis';
 import InterviewQuestionGenerator from './pages/company/InterviewQuestionGenerator';
-// import ManageCompanies from './pages/admin/ManageCompanies';
-// import ManageUsers from './pages/admin/ManageUsers';
+import Placeholder from './components/Placeholder';
+
+// Replace missing components with placeholders
+const AdminDashboard = () => <Placeholder componentName="Admin Dashboard" />;
+const InterviewRecording = () => <Placeholder componentName="Interview Recording" />;
+const ManageCompanies = () => <Placeholder componentName="Manage Companies" />;
 
 // Types
 type UserType = 'candidate' | 'company' | 'admin' | null;
+
+// Rest of your App component code...
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);

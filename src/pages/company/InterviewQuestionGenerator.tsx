@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+
+
 interface QuestionType {
   id: string;
   name: string;
@@ -115,7 +117,7 @@ const InterviewQuestionGenerator: React.FC = () => {
       
       // Start the question generation process
       const response = await api.post('/interviews/generate-questions', generationData);
-      const { taskId } = response.data;
+      const { taskId } = response.data as { taskId: string };
       
       // Poll for generation progress
       const pollInterval = setInterval(async () => {
