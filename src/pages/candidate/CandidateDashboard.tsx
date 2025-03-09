@@ -29,6 +29,8 @@ const CandidateDashboard: React.FC = () => {
   const [vacancies, setVacancies] = useState<Vacancy[]>([]);
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  // New state variable for extracted CV data
+  const [extractedData, setExtractedData] = useState<any>(null);
 
   useEffect(() => {
     const user = localStorage.getItem('user');
@@ -67,13 +69,15 @@ const CandidateDashboard: React.FC = () => {
     }
 
     const formData = new FormData();
-    formData.append('cv', file);
+    // Note: backend expects "file" not "cv"
+    formData.append('file', file);
 
     try {
       setUploadProgress(0);
       setUploadError('');
+      setExtractedData(null);
 
-      await api.post('/candidate/upload-cv', formData, {
+      const response = await api.post('/candidate/upload-cv', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -87,7 +91,11 @@ const CandidateDashboard: React.FC = () => {
 
       setCvUploaded(true);
       setUploadProgress(100);
-      alert('CV uploaded successfully! Our AI will now analyze your resume.');
+      
+      // Show extracted data
+      setExtractedData(response.data);
+      
+      alert('CV uploaded and processed successfully! Our AI has analyzed your resume.');
     } catch (error: any) {
       console.error('CV upload error:', error);
       setUploadError(error.response?.data?.message || 'Failed to upload CV. Please try again.');
@@ -125,12 +133,16 @@ const CandidateDashboard: React.FC = () => {
         {cvUploaded ? (
           <div className="cv-status">
             <p>Your CV has been uploaded and processed by our AI system.</p>
-            <button onClick={() => document.getElementById('cv-upload')?.click()} className="update-cv-btn">Update CV</button>
+            <button onClick={() => document.getElementById('cv-upload')?.click()} className="update-cv-btn">
+              Update CV
+            </button>
           </div>
         ) : (
           <div className="cv-upload-container">
             <p>Please upload your CV to apply for jobs and schedule interviews.</p>
-            <button onClick={() => document.getElementById('cv-upload')?.click()} className="upload-cv-btn">Upload CV (PDF)</button>
+            <button onClick={() => document.getElementById('cv-upload')?.click()} className="upload-cv-btn">
+              Upload CV (PDF)
+            </button>
             {uploadProgress > 0 && uploadProgress < 100 && (
               <div className="upload-progress">
                 <div className="progress-bar" style={{ width: `${uploadProgress}%` }}></div>
@@ -142,6 +154,40 @@ const CandidateDashboard: React.FC = () => {
         )}
         <input type="file" id="cv-upload" accept=".pdf" style={{ display: 'none' }} onChange={handleCvUpload} />
       </section>
+
+      {/* Display extracted data if available */}
+      {extractedData && (
+        <div className="extracted-data">
+          <h4>Data Extracted from CV</h4>
+          
+          <div className="data-section">
+            <h5>Personal Information</h5>
+            <p><strong>Name:</strong> {extractedData.personalInfo.name}</p>
+            <p><strong>Email:</strong> {extractedData.personalInfo.email}</p>
+            {extractedData.personalInfo.phone && (
+              <p><strong>Phone:</strong> {extractedData.personalInfo.phone}</p>
+            )}
+            {extractedData.personalInfo.location && (
+              <p><strong>Location:</strong> {extractedData.personalInfo.location}</p>
+            )}
+          </div>
+          
+          <div className="data-section">
+            <h5>Skills Extracted</h5>
+            <p>{extractedData.skillsExtracted} skills found</p>
+          </div>
+          
+          <div className="data-section">
+            <h5>Education</h5>
+            <p>{extractedData.educationExtracted} education entries found</p>
+          </div>
+          
+          <div className="data-section">
+            <h5>Experience</h5>
+            <p>{extractedData.experienceExtracted} experience entries found</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
